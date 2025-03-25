@@ -1,51 +1,39 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import Card from "./Card";
+import "./App.css";
+import { fetchData } from "./api";
 
-export default function App() {
-  const [countries, setCountries] = useState([]);
+function App() {
+  let [info, setInfo] = useState([]);
+  let [loading, setLoading] = useState(true);
+  let [error, setError] = useState(null);
+
+  const getdata = async () => {
+    try {
+      const ans = await fetchData();
+      setInfo(ans);
+      setLoading(false);
+    } catch (e) {
+      setError("Failed to load data");
+      setLoading(false);
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all")
-      .then((res) => res.json())
-      .then((data) => setCountries(data))
-      .catch((err) => console.error("Error fetching data: ", err));
+    getdata();
   }, []);
-  const cardStyle = {
-    width: "200px",
-    border: "1px solid #ccc",
-    borderRadius: "10px",
-    margin: "10px",
-    padding: "10px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-  };
 
-  const imageStyle = {
-    width: "100px",
-    height: "100px",
-  };
-
-  const containerStyle = {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
-  };
+  if (loading) return <h1>Loading...</h1>;
+  if (error) return <h1 style={{ color: "red" }}>{error}</h1>;
 
   return (
-    <div style={containerStyle}>
-      {countries.map((country) => (
-        <div key={country.cca3} style={cardStyle}>
-          <img
-            src={country.flags.png}
-            alt={`Flag of ${country.name.common}`}
-            style={imageStyle}
-          />
-          <h2>{country.name.common}</h2>
-        </div>
+    <div className="card">
+      {info.map((el) => (
+        <Card data={el} key={el.ccn3} />
       ))}
     </div>
   );
 }
+
+export default App;
