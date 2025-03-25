@@ -1,39 +1,54 @@
-import { useState, useEffect } from "react";
-import Card from "./Card";
-import "./App.css";
-import { fetchData } from "./api";
+import React, { useEffect, useState } from "react";
 
-function App() {
-  let [info, setInfo] = useState([]);
-  let [loading, setLoading] = useState(true);
-  let [error, setError] = useState(null);
+function Xcountries() {
+  const [data, setData] = useState([]);
 
-  const getdata = async () => {
+  const getData = async () => {
     try {
-      const ans = await fetchData();
-      setInfo(ans);
-      setLoading(false);
-    } catch (e) {
-      setError("Failed to load data");
-      setLoading(false);
-      console.log(e);
+      const apiData = await fetch(
+        "https://xcountries-backend.azurewebsites.net/all"
+      );
+      const actualData = await apiData.json();
+      console.log(actualData);
+      setData(actualData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
   useEffect(() => {
-    getdata();
+    getData();
   }, []);
 
-  if (loading) return <h1>Loading...</h1>;
-  if (error) return <h1 style={{ color: "red" }}>{error}</h1>;
-
   return (
-    <div className="card">
-      {info.map((el) => (
-        <Card data={el} key={el.ccn3} />
-      ))}
-    </div>
+    <>
+      <h2>Country_Flag</h2>
+      <div className="container">
+        <br />
+        <div className="row">
+          {data.map((item, index) => {
+            return (
+              <div className="col-lg-2 col-md-3 col-sm-4 col-xs-6" key={index}>
+                <div className="card" style={{ padding: "15px" }}>
+                  <img
+                    src={item.flag}
+                    className="card-img-top"
+                    alt={item.abbr}
+                  />
+                  <p
+                    className="card-text"
+                    style={{ paddingTop: "10px", textAlign: "center" }}
+                  >
+                    {item.name}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </>
   );
 }
 
-export default App;
+export default Xcountries;
